@@ -9,14 +9,13 @@ public class Client {
 	}
 	
 	public void sendAndReceive() {
-		String msg = "Message from client.";
-		System.out.println("Client: sending a packet containing:\n" + msg);
-		
-		
+		comms.sendAndReceive("WRQ", "test.txt");
+		comms.sendAndReceive("RRQ", "test.txt");
 	}
 	
 	public static void main(String[] args) {
 		Client client = new Client();
+		client.sendAndReceive();
 		System.out.println("Client running...");
 	}
 

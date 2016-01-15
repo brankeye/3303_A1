@@ -6,34 +6,52 @@ public class Communication {
 	private String name;
 	private DatagramPacket sendPacket, receivePacket;
 	private DatagramSocket sendReceiveSocket;
+	private String mode;
 	
 	public Communication(String t_name) {
 		name = t_name; // Client, IHost, Server
+		mode = "netascii";
+		
+		try {
+	       sendReceiveSocket = new DatagramSocket();
+	    } catch (SocketException se) {   // Can't create the socket.
+	       se.printStackTrace();
+	       System.exit(1);
+	    }
 	}
 	
-	public void sendAndReceive() {
-		sendNewPacket("WRQ", "test.txt", "netascii");
+	public void sendAndReceive(String req, String text) {
+		sendNewPacket(req, text, mode);
+		receiveNewPacket();
 	}
 	
 	public void sendNewPacket(String type, String str, String mode) {
-		String fullMessage = "";
-		String typeBytes = "";
-		switch (type) {
-			case "WRQ": typeBytes = "01";
-			case "RRQ": typeBytes = "02";
-			case "DATA": typeBytes = "03";
-			case "ACK": typeBytes = "04";
-			case "ERROR": typeBytes = "05";
-		}
-		fullMessage = typeBytes + str + mode;
-		byte msg[] = fullMessage.getBytes();
-		
 		try {
-			sendPacket = new DatagramPacket(msg, msg.length, 
-											InetAddress.getLocalHost(), 5000);
+			ByteArrayOutputStream stream = new ByteArrayOutputStream();
+			stream.write(0);
+			switch (type) {
+				case "WRQ": stream.write(1); break;
+				case "RRQ": stream.write(2); break;
+				case "DATA": stream.write(3); break;
+				case "ACK": stream.write(4); break;
+				case "ERROR": stream.write(5); break;
+				default: break;
+			}
+			
+			stream.write(str.getBytes());
+			stream.write(0);
+			stream.write(mode.getBytes());
+			stream.write(0);
+			
+			byte msg[] = stream.toByteArray();
+			
+				sendPacket = new DatagramPacket(msg, msg.length, 
+												InetAddress.getLocalHost(), 68);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 			System.exit(1);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 		
 		// print more log info
