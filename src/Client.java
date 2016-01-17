@@ -3,12 +3,12 @@ import java.io.*;
 
 public class Client {
 
-	protected DatagramPacket sendPacket, receivePacket;
-	protected DatagramSocket sendReceiveSocket;
+	private DatagramPacket sendPacket, receivePacket;
+	private DatagramSocket duplexSocket;
 	
 	Client() {
 		try {
-	       sendReceiveSocket = new DatagramSocket();
+	       duplexSocket = new DatagramSocket();
 	    } catch (SocketException se) {   // Can't create the socket.
 	       se.printStackTrace();
 	       System.exit(1);
@@ -17,11 +17,10 @@ public class Client {
 	
 	public static void main(String[] args) {
 		Client client = new Client();
-		client.sendAndReceive();
-		System.out.println("Client running...");
+		client.run();
 	}
 	
-	public void sendAndReceive() {
+	public void run() {
 		sendAndReceive("WRQ", "test.txt");
 		sendAndReceive("RRQ", "test.txt");
 	}
@@ -53,7 +52,7 @@ public class Client {
 	    
 	    // Send the datagram packet to the server via the send/receive socket. 
 	    try {
-	       sendReceiveSocket.send(sendPacket);
+	       duplexSocket.send(sendPacket);
 	    } catch (IOException e) {
 	       e.printStackTrace();
 	       System.exit(1);
@@ -66,7 +65,7 @@ public class Client {
 		receivePacket = new DatagramPacket(data, data.length);
 		
 		try {
-			sendReceiveSocket.receive(receivePacket);
+			duplexSocket.receive(receivePacket);
 		} catch(IOException e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -85,6 +84,6 @@ public class Client {
 	    System.out.println(received);
 
 	    // We're finished, so close the socket.
-	    sendReceiveSocket.close();
+	    duplexSocket.close();
 	}
 }
