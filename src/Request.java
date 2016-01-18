@@ -1,5 +1,4 @@
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 
 public class Request {
 	public enum Mode { NETASCII, OCTET };

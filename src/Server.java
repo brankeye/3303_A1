@@ -31,11 +31,12 @@ public class Server {
 	}
 	
 	public void receiveAndEcho() {
-		receive();
-		send();
+		byte data[] = new byte[100];
+		data = receive();
+		send(data);
 	}
 	
-	public void receive() {
+	public byte[] receive() {
 		byte data[] = new byte[100];
 		receivePacket = new DatagramPacket(data, data.length);
 		System.out.println("Server: Waiting for Packet.\n");
@@ -64,25 +65,20 @@ public class Server {
 		System.out.println(received + "\n");
 		
 		// Parse the packet
+		//String pattern = "^[a-zA-Z0-9~@#$%^&*:;<>.,/}{+-]*$";
 		
+		return data;
 	}
 	
-	public void send() {
-		// Slow things down (wait 5 seconds)
-		try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e ) {
-			e.printStackTrace();
-			System.exit(1);
-		}
+	public void send(byte data[]) {
 
 		sendPacket = new DatagramPacket(data, receivePacket.getLength(),
-                           receivePacket.getAddress(), receivePacket.getPort());
+                           receivePacket.getAddress(), 68);
 
 		System.out.println( "Server: Sending packet:");
 		System.out.println("To host: " + sendPacket.getAddress());
-		System.out.println("Destination host port: " + sendPacket.getPort());
-		len = sendPacket.getLength();
+		System.out.println("Destination host port: " + 68);
+		int len = sendPacket.getLength();
 		System.out.println("Length: " + len);
 		System.out.print("Containing: ");
 		System.out.println(new String(sendPacket.getData(),0,len));
@@ -98,9 +94,5 @@ public class Server {
 		}
 
 		System.out.println("Server: packet sent");
-
-		// We're finished, so close the sockets.
-		sendSocket.close();
-		receiveSocket.close();
 	}
 }
