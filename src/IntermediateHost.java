@@ -5,10 +5,11 @@ public class IntermediateHost {
 
 	private DatagramPacket sendPacket, receivePacket;
 	private DatagramSocket receiveSocket, duplexSocket;
+	public static int port = 68;
 	
 	IntermediateHost() {
 		try {
-			receiveSocket = new DatagramSocket(68);
+			receiveSocket = new DatagramSocket(port);
 			duplexSocket = new DatagramSocket();
 	    } catch (SocketException se) {   // Can't create the socket.
 	    	se.printStackTrace();
@@ -22,15 +23,13 @@ public class IntermediateHost {
 	}
 
 	public void run() {
-		while(true) {
-			receiveAndEcho();
-		}
+		receiveAndEcho();
 	}
 	
 	public void receiveAndEcho() {
 		byte data[] = new byte[100];
 		data = receive();
-		send(data, 69);
+		send(data, Server.port);
 		data = receive();
 		send(data, receivePacket.getPort());
 	}
@@ -64,9 +63,9 @@ public class IntermediateHost {
 	    return data;
 	}
 	
-	public void send(byte data[], int port) {
+	public void send(byte data[], int destPort) {
 		sendPacket = new DatagramPacket(data, receivePacket.getLength(), 
-				receivePacket.getAddress(), port);
+				receivePacket.getAddress(), destPort);
 		try {
 			duplexSocket.send(sendPacket);
 		} catch (IOException e) {

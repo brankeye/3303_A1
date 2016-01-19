@@ -5,11 +5,12 @@ public class Server {
 
 	private DatagramPacket sendPacket, receivePacket;
 	private DatagramSocket sendSocket, receiveSocket;
+	public static int port = 69;
 	
 	Server() {
 		try {
 			sendSocket = new DatagramSocket();
-			receiveSocket = new DatagramSocket(69);
+			receiveSocket = new DatagramSocket(port);
          
 			// to test socket timeout (2 seconds)
 			//receiveSocket.setSoTimeout(2000);
@@ -25,15 +26,13 @@ public class Server {
 	}
 
 	public void run() {
-		while(true) {
-			receiveAndEcho();
-		}
+		receiveAndEcho();
 	}
 	
 	public void receiveAndEcho() {
 		byte data[] = new byte[100];
 		data = receive();
-		send(data);
+		send(data, IntermediateHost.port);
 	}
 	
 	public byte[] receive() {
@@ -70,14 +69,14 @@ public class Server {
 		return data;
 	}
 	
-	public void send(byte data[]) {
+	public void send(byte data[], int destPort) {
 
 		sendPacket = new DatagramPacket(data, receivePacket.getLength(),
-                           receivePacket.getAddress(), 68);
+                           receivePacket.getAddress(), destPort);
 
 		System.out.println( "Server: Sending packet:");
 		System.out.println("To host: " + sendPacket.getAddress());
-		System.out.println("Destination host port: " + 68);
+		System.out.println("Destination host port: " + sendPacket.getPort());
 		int len = sendPacket.getLength();
 		System.out.println("Length: " + len);
 		System.out.print("Containing: ");

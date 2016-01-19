@@ -34,7 +34,7 @@ public class Client {
 		try {
 			byte msg[] = Request.getByteArray(type, str, Request.Mode.NETASCII);
 			sendPacket = new DatagramPacket(msg, msg.length, 
-											InetAddress.getLocalHost(), 68);
+											InetAddress.getLocalHost(), IntermediateHost.port);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 			System.exit(1);
