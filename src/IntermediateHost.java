@@ -5,16 +5,19 @@ public class IntermediateHost {
 
 	private DatagramPacket sendPacket, receivePacket;
 	private DatagramSocket receiveSocket, duplexSocket;
-	public static int port = 68;
+	public static int thisPort = 68;
+	public static int sendPort = 69;
+	private boolean running;
 	
 	IntermediateHost() {
 		try {
-			receiveSocket = new DatagramSocket(port);
+			receiveSocket = new DatagramSocket(thisPort);
 			duplexSocket = new DatagramSocket();
 	    } catch (SocketException se) {   // Can't create the socket.
 	    	se.printStackTrace();
 	    	System.exit(1);
 	    }
+		running = true;
 	}
 	
 	public static void main(String[] args) {
@@ -23,15 +26,19 @@ public class IntermediateHost {
 	}
 
 	public void run() {
-		receiveAndEcho();
+		while(running) {
+			relay();
+		}
 	}
 	
-	public void receiveAndEcho() {
+	// handle comms from client to server
+	public void relay() {
 		byte data[] = new byte[100];
 		data = receive();
-		send(data, Server.port);
+		int clientPort = receivePacket.getPort();
+		send(data, sendPort);
 		data = receive();
-		send(data, receivePacket.getPort());
+		send(data, clientPort);
 	}
 	
 	public byte[] receive() {
@@ -57,7 +64,7 @@ public class IntermediateHost {
 	    System.out.print("Containing: " );
 	    
 	    // Form a String from the byte array.
-	    String received = new String(data,0,len);   
+	    String received = RequestHelper.getString(receivePacket.getData(), len);   
 	    System.out.println(received + "\n");
 	    
 	    return data;
@@ -66,12 +73,6 @@ public class IntermediateHost {
 	public void send(byte data[], int destPort) {
 		sendPacket = new DatagramPacket(data, receivePacket.getLength(), 
 				receivePacket.getAddress(), destPort);
-		try {
-			duplexSocket.send(sendPacket);
-		} catch (IOException e) {
-	        e.printStackTrace();
-	        System.exit(1);
-	    }
 		
 		// print more log info
 		System.out.println("IHost: Sending packet:");
@@ -80,7 +81,7 @@ public class IntermediateHost {
 	    int len = sendPacket.getLength();
 	    System.out.println("Length: " + len);
 	    System.out.print("Containing: ");
-	    System.out.println(new String(sendPacket.getData(),0,len)); // or could print "s"
+	    System.out.println(RequestHelper.getString(sendPacket.getData(), len) + "\n"); // or could print "s"
 	    
 	    // Send the datagram packet to the server via the send/receive socket. 
 	    try {

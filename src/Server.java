@@ -5,12 +5,13 @@ public class Server {
 
 	private DatagramPacket sendPacket, receivePacket;
 	private DatagramSocket sendSocket, receiveSocket;
-	public static int port = 69;
+	private static int thisPort = 69;
+	private static int sendPort = 68;
+	private boolean running;
 	
 	Server() {
 		try {
-			sendSocket = new DatagramSocket();
-			receiveSocket = new DatagramSocket(port);
+			receiveSocket = new DatagramSocket(thisPort);
          
 			// to test socket timeout (2 seconds)
 			//receiveSocket.setSoTimeout(2000);
@@ -18,6 +19,7 @@ public class Server {
 			se.printStackTrace();
 			System.exit(1);
 		} 
+		running = true;
 	}
 	
 	public static void main(String[] args) {
@@ -26,13 +28,15 @@ public class Server {
 	}
 
 	public void run() {
-		receiveAndEcho();
+		while(running) {
+			receiveAndEcho();
+		}
 	}
 	
 	public void receiveAndEcho() {
 		byte data[] = new byte[100];
 		data = receive();
-		send(data, IntermediateHost.port);
+		send(data, sendPort);
 	}
 	
 	public byte[] receive() {
@@ -60,33 +64,35 @@ public class Server {
 		System.out.print("Containing: " );
 
 		// Form a String from the byte array.
-		String received = new String(data,0,len);   
+		String received = RequestHelper.getString(receivePacket.getData(), len);  
 		System.out.println(received + "\n");
 		
 		// Parse the packet
 		//String pattern = "^[a-zA-Z0-9~@#$%^&*:;<>.,/}{+-]*$";
 		
+		
 		return data;
 	}
 	
 	public void send(byte data[], int destPort) {
-
-		sendPacket = new DatagramPacket(data, receivePacket.getLength(),
-                           receivePacket.getAddress(), destPort);
-
-		System.out.println( "Server: Sending packet:");
-		System.out.println("To host: " + sendPacket.getAddress());
-		System.out.println("Destination host port: " + sendPacket.getPort());
-		int len = sendPacket.getLength();
-		System.out.println("Length: " + len);
-		System.out.print("Containing: ");
-		System.out.println(new String(sendPacket.getData(),0,len));
-		// or (as we should be sending back the same thing)
-		// System.out.println(received); 
-    
-		// Send the datagram packet to the client via the send socket. 
 		try {
+			sendPacket = new DatagramPacket(data, receivePacket.getLength(),
+	                           receivePacket.getAddress(), destPort);
+	
+			System.out.println( "Server: Sending packet:");
+			System.out.println("To host: " + sendPacket.getAddress());
+			System.out.println("Destination host port: " + sendPacket.getPort());
+			int len = sendPacket.getLength();
+			System.out.println("Length: " + len);
+			System.out.print("Containing: ");
+			System.out.println(RequestHelper.getString(sendPacket.getData(), len) + "\n");
+			// or (as we should be sending back the same thing)
+			// System.out.println(received); 
+	    
+			// Send the datagram packet to the client via the send socket. 
+			sendSocket = new DatagramSocket();
 			sendSocket.send(sendPacket);
+			sendSocket.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(1);

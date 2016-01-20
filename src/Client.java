@@ -5,6 +5,7 @@ public class Client {
 
 	private DatagramPacket sendPacket, receivePacket;
 	private DatagramSocket duplexSocket;
+	private static int sendPort = 68;
 	
 	Client() {
 		try {
@@ -21,34 +22,53 @@ public class Client {
 	}
 	
 	public void run() {
-		sendAndReceive("WRQ", "test.txt");
-		sendAndReceive("RRQ", "test.txt");
+		read("testRead1.txt");
+		/*
+		read("testRead2.txt");
+		read("testRead3.txt");
+		read("testRead4.txt");
+		read("testRead5.txt");
+		
+		write("testWrite1.txt");
+		write("testWrite2.txt");
+		write("testWrite3.txt");
+		write("testWrite4.txt");
+		write("testWrite5.txt");
+		*/
+		// some kind of invalid request here...
 	}
-
-	public void sendAndReceive(String req, String text) {
-		sendNewPacket(req, text);
+	
+	public void read(String filename) {
+		// create a write request to send
+		sendNewPacket(RequestHelper.Format.RRQ, filename);
 		receiveNewPacket();
 	}
 	
-	public void sendNewPacket(String type, String str) {
+	public void write(String filename) {
+		// create a write request to send
+		sendNewPacket(RequestHelper.Format.WRQ, filename);
+		receiveNewPacket();
+	}
+	
+	public void sendNewPacket(RequestHelper.Format format, String filename) {
 		try {
-			byte msg[] = Request.getByteArray(type, str, Request.Mode.NETASCII);
+			byte msg[] = RequestHelper.getByteArray(format, filename);
 			sendPacket = new DatagramPacket(msg, msg.length, 
-											InetAddress.getLocalHost(), IntermediateHost.port);
+											InetAddress.getLocalHost(), sendPort);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
 		
 		// print more log info
-		System.out.println("Client: sending a packet containing:\n" + str);
+		System.out.println("Client: sending a packet containing:\n" + filename);
 		System.out.println("Client: Sending packet:");
 	    System.out.println("To host: " + sendPacket.getAddress());
 	    System.out.println("Destination host port: " + sendPacket.getPort());
 	    int len = sendPacket.getLength();
 	    System.out.println("Length: " + len);
 	    System.out.print("Containing: ");
-	    System.out.println(new String(sendPacket.getData(),0,len)); // or could print "s"
+	    System.out.println(RequestHelper.getString(sendPacket.getData(), len) + "\n"); // or could print "s"
 	    
 	    // Send the datagram packet to the server via the send/receive socket. 
 	    try {
@@ -80,10 +100,7 @@ public class Client {
 	    System.out.print("Containing: ");
 
 	    // Form a String from the byte array.
-	    String received = new String(data,0,len);   
+	    String received = RequestHelper.getString(receivePacket.getData(), len) + "\n";   
 	    System.out.println(received);
-
-	    // We're finished, so close the socket.
-	    duplexSocket.close();
 	}
 }
