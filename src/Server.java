@@ -50,14 +50,21 @@ public class Server {
 		}
 
 		// print log
-  		System.out.println("Server: receiving a packet...");
-  	    System.out.println("From host: " + receivePacket.getAddress());
-  	    System.out.println("Host port: " + receivePacket.getPort());
-  	    String reqString = RequestHelper.getString(receivePacket.getData(), receivePacket.getLength());
-  	    byte reqBytes[] =  receivePacket.getData();
-  	    System.out.print("String: '" + reqString + "'\n");
-  	    System.out.print("Bytes:  '" + reqBytes.toString()  + "'\n");	    
-  	    System.out.println("Server: packet received.\n");
+		Request req = new Request(receivePacket.getData(), receivePacket.getLength());
+ 		System.out.println("Server: receiving a packet...");
+ 	    System.out.println("From host: " + receivePacket.getAddress());
+ 	    System.out.println("Host port: " + receivePacket.getPort());
+ 	    String reqString = req.getString();
+	    byte reqBytes[]  = req.getByteArray();
+	    // bytes here
+	    System.out.print("String: '" + reqString + "'\n");
+	    System.out.print("Bytes:  '");
+	    int i = 0;
+	    while(i < req.getLength()) {
+	    	System.out.print(reqBytes[i++]);
+	    }
+	    System.out.print("'\n");    
+ 	    System.out.println("Server: packet received.\n");
 		
 		return receivePacket;
 	}
@@ -66,10 +73,9 @@ public class Server {
 		// verify the packet
   	    byte serverMsg[] = {};
   	    try {
-  	    	if(!RequestHelper.isValid(receivedPacket.getData(), receivedPacket.getLength())) { throw new IllegalStateException(); }
-  	    	RequestHelper.Format format_t = RequestHelper.getFormat(receivedPacket.getData(), receivedPacket.getLength());
-  	    	System.out.println(format_t.toString());
-  	    	switch(format_t) {
+  	    	Request recReq = new Request(receivedPacket.getData(), receivedPacket.getLength());
+  	    	if(!recReq.isValid()) { throw new IllegalStateException(); }
+  	    	switch(recReq.getFormat()) {
   	    		case RRQ: serverMsg = new byte[] {0, 3, 0, 1}; break;
   	    		case WRQ: serverMsg = new byte[] {0, 4, 0, 0}; break;
   	    		default: throw new IllegalStateException();
@@ -86,10 +92,16 @@ public class Server {
 		System.out.println("Server: sending a packet...");
 	    System.out.println("To host: " + sendPacket.getAddress());
 	    System.out.println("Destination host port: " + sendPacket.getPort());
-	    String reqString = RequestHelper.getString(sendPacket.getData(), sendPacket.getLength());
-	    byte reqBytes[] =  sendPacket.getData();
-	    System.out.print("String: '" + reqString + "'\n");
-	    System.out.print("Bytes:  '" + reqBytes.toString()  + "'\n");
+	    Request req = new Request(sendPacket.getData(), sendPacket.getLength());
+	    String reqString = req.getString();
+ 	    byte reqBytes[]  = req.getByteArray();
+ 	    System.out.print("String: '" + reqString + "'\n");
+	    System.out.print("Bytes:  '");
+	    int i = 0;
+	    while(i < reqBytes.length) {
+	    	System.out.print(reqBytes[i++]);
+	    }
+	    System.out.print("'\n");
 	    
 	    try {
 			// Send the datagram packet to the client via the send socket. 
