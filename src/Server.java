@@ -3,10 +3,8 @@ import java.io.*;
 
 public class Server {
 
-	private DatagramPacket sendPacket, receivePacket;
 	private DatagramSocket receiveSocket;
 	private static int thisPort = 69;
-	private static int sendPort = 68;
 	private boolean running;
 	
 	Server() {
@@ -34,14 +32,13 @@ public class Server {
 	}
 	
 	public void receiveAndEcho() {
-		byte data[] = new byte[100];
-		data = receive();
-		send(data, sendPort);
+		DatagramPacket receivedPacket = receive();
+		reply(receivedPacket);
 	}
 	
-	public byte[] receive() {
+	public DatagramPacket receive() {
 		byte data[] = new byte[100];
-		receivePacket = new DatagramPacket(data, data.length);
+		DatagramPacket receivePacket = new DatagramPacket(data, data.length);
 		System.out.println("Server: waiting for a packet...\n");
 
 		// Block until a datagram packet is received from receiveSocket.
@@ -64,12 +61,27 @@ public class Server {
   	    System.out.print("Bytes:  '" + reqBytes.toString()  + "'\n");	    
   	    System.out.println("Server: packet received.\n");
 		
-		return data;
+		return receivePacket;
 	}
 	
-	public void send(byte data[], int destPort) {
-		sendPacket = new DatagramPacket(data, receivePacket.getLength(),
-                           receivePacket.getAddress(), destPort);
+	public void reply(DatagramPacket receivedPacket) {
+		// verify the packet
+  	    byte serverMsg[] = {};
+  	    try {
+  	    	if(!RequestHelper.isValid(receivedPacket.getData(), receivedPacket.getLength())) { throw new IllegalStateException(); }
+  	    	RequestHelper.Format format_t = RequestHelper.getFormat(receivedPacket.getData(), receivedPacket.getLength());
+  	    	switch(format_t) {
+  	    		case RRQ: serverMsg = new byte[] {0, 3, 0, 1}; break;
+  	    		case WRQ: serverMsg = new byte[] {0, 4, 0, 0}; break;
+  	    		default: throw new IllegalStateException();
+  	    	}
+  	    } catch(IllegalStateException e) {
+  	    	e.printStackTrace();
+  	    	System.exit(1);
+  	    }
+  	    
+		DatagramPacket sendPacket = new DatagramPacket(serverMsg, serverMsg.length,
+                           receivedPacket.getAddress(), receivedPacket.getPort());
 
 		// print log
 		System.out.println("Server: sending a packet...");
