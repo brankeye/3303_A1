@@ -2,8 +2,7 @@ import java.net.*;
 import java.io.*;
 
 public class Client {
-
-	private DatagramPacket sendPacket, receivePacket;
+	
 	private DatagramSocket duplexSocket;
 	private static int sendPort = 68;
 	
@@ -55,7 +54,7 @@ public class Client {
 	
 	public void receiveNewPacket() {
 		byte data[] = new byte[100];
-		receivePacket = new DatagramPacket(data, data.length);
+		DatagramPacket receivePacket = new DatagramPacket(data, data.length);
 		
 		try {
 			duplexSocket.receive(receivePacket);
@@ -76,6 +75,7 @@ public class Client {
 	}
 	
 	public void sendNewPacket(RequestHelper.Format format, String filename) {
+		DatagramPacket sendPacket = null;
 		try {
 			byte msg[] = RequestHelper.getByteArray(format, filename);
 			sendPacket = new DatagramPacket(msg, msg.length, 

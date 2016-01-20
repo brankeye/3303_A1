@@ -1,7 +1,7 @@
 import java.io.*;
 
 public class RequestHelper {
-	public enum Format { WRQ, RRQ, DATA, ACK, ERROR };
+	public enum Format { RRQ, WRQ, DATA, ACK, ERROR };
 	public enum Mode { NETASCII, OCTET };
 	private static Mode defaultMode = Mode.NETASCII;
 	
@@ -67,8 +67,8 @@ public class RequestHelper {
 		// get format
 		if(data[0] != 0) { return Format.ERROR; }
 		
-		for(int i = 1; i < Format.values().length + 1; ++i) {
-			if(data[1] == i) { return Format.values()[i]; }
+		for(int i = 0; i < Format.values().length; ++i) {
+			if(data[1] == i + 1) { return Format.values()[i]; }
 		}
 		return Format.ERROR;
 	}

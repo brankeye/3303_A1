@@ -5,14 +5,12 @@ public class Server {
 
 	private DatagramSocket receiveSocket;
 	private static int thisPort = 69;
+	public static int hostPort = 68;
 	private boolean running;
 	
 	Server() {
 		try {
 			receiveSocket = new DatagramSocket(thisPort);
-         
-			// to test socket timeout (2 seconds)
-			//receiveSocket.setSoTimeout(2000);
 		} catch (SocketException se) {
 			se.printStackTrace();
 			System.exit(1);
@@ -70,6 +68,7 @@ public class Server {
   	    try {
   	    	if(!RequestHelper.isValid(receivedPacket.getData(), receivedPacket.getLength())) { throw new IllegalStateException(); }
   	    	RequestHelper.Format format_t = RequestHelper.getFormat(receivedPacket.getData(), receivedPacket.getLength());
+  	    	System.out.println(format_t.toString());
   	    	switch(format_t) {
   	    		case RRQ: serverMsg = new byte[] {0, 3, 0, 1}; break;
   	    		case WRQ: serverMsg = new byte[] {0, 4, 0, 0}; break;
@@ -81,7 +80,7 @@ public class Server {
   	    }
   	    
 		DatagramPacket sendPacket = new DatagramPacket(serverMsg, serverMsg.length,
-                           receivedPacket.getAddress(), receivedPacket.getPort());
+                           receivedPacket.getAddress(), hostPort);
 
 		// print log
 		System.out.println("Server: sending a packet...");

@@ -2,11 +2,10 @@ import java.net.*;
 import java.io.*;
 
 public class IntermediateHost {
-
-	private DatagramPacket sendPacket, receivePacket;
+	
 	private DatagramSocket receiveSocket, duplexSocket;
 	public static int thisPort = 68;
-	public static int sendPort = 69;
+	public static int serverPort = 69;
 	private boolean running;
 	
 	IntermediateHost() {
@@ -33,17 +32,22 @@ public class IntermediateHost {
 	
 	// handle comms from client to server
 	public void relay() {
-		byte data[] = new byte[100];
-		data = receive();
-		int clientPort = receivePacket.getPort();
-		send(data, sendPort);
-		data = receive();
-		send(data, clientPort);
+		DatagramPacket clientPacket = receive();
+		try {
+		send(new DatagramPacket(clientPacket.getData(), clientPacket.getLength(), 
+								InetAddress.getLocalHost(), serverPort));
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		DatagramPacket serverPacket = receive();
+		send(new DatagramPacket(serverPacket.getData(), serverPacket.getLength(),
+								clientPacket.getAddress(), clientPacket.getPort()));
 	}
 	
-	public byte[] receive() {
+	public DatagramPacket receive() {
 		byte data[] = new byte[100];
-		receivePacket = new DatagramPacket(data, data.length);
+		DatagramPacket receivePacket = new DatagramPacket(data, data.length);
 		System.out.println("IHost: waiting for a packet...\n");
 		
 		try {
@@ -65,13 +69,10 @@ public class IntermediateHost {
   	    System.out.print("Bytes:  '" + reqBytes  + "'\n");	    
   	    System.out.println("IHost: packet received.\n");
 	    
-	    return data;
+	    return receivePacket;
 	}
 	
-	public void send(byte data[], int destPort) {
-		sendPacket = new DatagramPacket(data, receivePacket.getLength(), 
-				receivePacket.getAddress(), destPort);
-		
+	public void send(DatagramPacket sendPacket) {
 		// print log
 		System.out.println("IHost: sending a packet...");
 	    System.out.println("To host: " + sendPacket.getAddress());
