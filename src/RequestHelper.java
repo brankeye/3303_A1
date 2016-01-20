@@ -42,7 +42,7 @@ public class RequestHelper {
 		else { return invalid; }
 		
 		for(int i = 1; i < Format.values().length + 1; ++i) {
-			if(data[i] == i) { buffer.append(i); }
+			if(data[1] == i) { buffer.append(i); }
 		}
 		if(buffer.length() == 1) { return invalid; }
 		

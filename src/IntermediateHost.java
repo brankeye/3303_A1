@@ -44,10 +44,9 @@ public class IntermediateHost {
 	public byte[] receive() {
 		byte data[] = new byte[100];
 		receivePacket = new DatagramPacket(data, data.length);
-		System.out.println("IHost: Waiting for Packet.\n");
+		System.out.println("IHost: waiting for a packet...\n");
 		
 		try {
-			System.out.println("Waiting..."); // so we know we're waiting
 			receiveSocket.receive(receivePacket);
 		} catch(IOException e) {
 			System.out.print("IO Exception: likely:");
@@ -55,17 +54,16 @@ public class IntermediateHost {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		
-		System.out.println("IHost: Packet received:");
-	    System.out.println("From host: " + receivePacket.getAddress());
-	    System.out.println("Host port: " + receivePacket.getPort());
-	    int len = receivePacket.getLength();
-	    System.out.println("Length: " + len);
-	    System.out.print("Containing: " );
 	    
-	    // Form a String from the byte array.
-	    String received = RequestHelper.getString(receivePacket.getData(), len);   
-	    System.out.println(received + "\n");
+	    // print log
+  		System.out.println("IHost: receiving a packet...");
+  	    System.out.println("From host: " + receivePacket.getAddress());
+  	    System.out.println("Host port: " + receivePacket.getPort());
+  	    String reqString = RequestHelper.getString(receivePacket.getData(), receivePacket.getLength());
+  	    byte reqBytes[] =  receivePacket.getData();
+  	    System.out.print("String: '" + reqString + "'\n");
+  	    System.out.print("Bytes:  '" + reqBytes  + "'\n");	    
+  	    System.out.println("IHost: packet received.\n");
 	    
 	    return data;
 	}
@@ -74,14 +72,14 @@ public class IntermediateHost {
 		sendPacket = new DatagramPacket(data, receivePacket.getLength(), 
 				receivePacket.getAddress(), destPort);
 		
-		// print more log info
-		System.out.println("IHost: Sending packet:");
+		// print log
+		System.out.println("IHost: sending a packet...");
 	    System.out.println("To host: " + sendPacket.getAddress());
 	    System.out.println("Destination host port: " + sendPacket.getPort());
-	    int len = sendPacket.getLength();
-	    System.out.println("Length: " + len);
-	    System.out.print("Containing: ");
-	    System.out.println(RequestHelper.getString(sendPacket.getData(), len) + "\n"); // or could print "s"
+	    String reqString = RequestHelper.getString(sendPacket.getData(), sendPacket.getLength());
+	    byte reqBytes[] =  sendPacket.getData();
+	    System.out.print("String: '" + reqString + "'\n");
+	    System.out.print("Bytes:  '" + reqBytes  + "'\n");
 	    
 	    // Send the datagram packet to the server via the send/receive socket. 
 	    try {
@@ -90,6 +88,6 @@ public class IntermediateHost {
 	       e.printStackTrace();
 	       System.exit(1);
 	    }
-	    System.out.println("IHost: Packet sent.\n");
+	    System.out.println("IHost: packet sent.\n");
 	}
 }

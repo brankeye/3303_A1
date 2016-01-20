@@ -22,8 +22,11 @@ public class Client {
 	}
 	
 	public void run() {
-		read("testRead1.txt");
+		//read("testRead1.txt");
+		write("testWrite1.txt");
+		
 		/*
+		read("testRead1.txt");
 		read("testRead2.txt");
 		read("testRead3.txt");
 		read("testRead4.txt");
@@ -50,36 +53,6 @@ public class Client {
 		receiveNewPacket();
 	}
 	
-	public void sendNewPacket(RequestHelper.Format format, String filename) {
-		try {
-			byte msg[] = RequestHelper.getByteArray(format, filename);
-			sendPacket = new DatagramPacket(msg, msg.length, 
-											InetAddress.getLocalHost(), sendPort);
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-		
-		// print more log info
-		System.out.println("Client: sending a packet containing:\n" + filename);
-		System.out.println("Client: Sending packet:");
-	    System.out.println("To host: " + sendPacket.getAddress());
-	    System.out.println("Destination host port: " + sendPacket.getPort());
-	    int len = sendPacket.getLength();
-	    System.out.println("Length: " + len);
-	    System.out.print("Containing: ");
-	    System.out.println(RequestHelper.getString(sendPacket.getData(), len) + "\n"); // or could print "s"
-	    
-	    // Send the datagram packet to the server via the send/receive socket. 
-	    try {
-	       duplexSocket.send(sendPacket);
-	    } catch (IOException e) {
-	       e.printStackTrace();
-	       System.exit(1);
-	    }
-	    System.out.println("Client: Packet sent.\n");
-	}
-	
 	public void receiveNewPacket() {
 		byte data[] = new byte[100];
 		receivePacket = new DatagramPacket(data, data.length);
@@ -91,16 +64,43 @@ public class Client {
 			System.exit(1);
 		}
 		
-		// Process the received datagram.
-	    System.out.println("Client: Packet received:");
-	    System.out.println("From host: " + receivePacket.getAddress());
-	    System.out.println("Host port: " + receivePacket.getPort());
-	    int len = receivePacket.getLength();
-	    System.out.println("Length: " + len);
-	    System.out.print("Containing: ");
-
-	    // Form a String from the byte array.
-	    String received = RequestHelper.getString(receivePacket.getData(), len) + "\n";   
-	    System.out.println(received);
+		// print log
+ 		System.out.println("Client: receiving a packet...");
+ 	    System.out.println("From host: " + receivePacket.getAddress());
+ 	    System.out.println("Host port: " + receivePacket.getPort());
+ 	    String reqString = RequestHelper.getString(receivePacket.getData(), receivePacket.getLength());
+ 	    byte reqBytes[] =  receivePacket.getData();
+ 	    System.out.print("String: '" + reqString + "'\n");
+ 	    System.out.print("Bytes:  '" + reqBytes  + "'\n");	    
+ 	    System.out.println("Client: packet received.\n");
+	}
+	
+	public void sendNewPacket(RequestHelper.Format format, String filename) {
+		try {
+			byte msg[] = RequestHelper.getByteArray(format, filename);
+			sendPacket = new DatagramPacket(msg, msg.length, 
+											InetAddress.getLocalHost(), sendPort);
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		
+		// print log
+		System.out.println("Client: sending a packet...");
+	    System.out.println("To host: " + sendPacket.getAddress());
+	    System.out.println("Destination host port: " + sendPacket.getPort());
+	    String reqString = RequestHelper.getString(sendPacket.getData(), sendPacket.getLength());
+	    byte reqBytes[] =  sendPacket.getData();
+	    System.out.print("String: '" + reqString + "'\n");
+	    System.out.print("Bytes:  '" + reqBytes  + "'\n");
+	    
+	    // Send the datagram packet to the server via the send/receive socket. 
+	    try {
+	       duplexSocket.send(sendPacket);
+	    } catch (IOException e) {
+	       e.printStackTrace();
+	       System.exit(1);
+	    }
+	    System.out.println("Client: packet sent.\n");
 	}
 }

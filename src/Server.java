@@ -42,11 +42,10 @@ public class Server {
 	public byte[] receive() {
 		byte data[] = new byte[100];
 		receivePacket = new DatagramPacket(data, data.length);
-		System.out.println("Server: Waiting for Packet.\n");
+		System.out.println("Server: waiting for a packet...\n");
 
 		// Block until a datagram packet is received from receiveSocket.
-		try {        
-			System.out.println("Waiting..."); // so we know we're waiting
+		try {
 			receiveSocket.receive(receivePacket);
 		} catch (IOException e) {
 			System.out.print("IO Exception: likely:");
@@ -55,40 +54,33 @@ public class Server {
 			System.exit(1);
 		}
 
-		// Process the received datagram.
-		System.out.println("Server: Packet received:");
-		System.out.println("From host: " + receivePacket.getAddress());
-		System.out.println("Host port: " + receivePacket.getPort());
-		int len = receivePacket.getLength();
-		System.out.println("Length: " + len);
-		System.out.print("Containing: " );
-
-		// Form a String from the byte array.
-		String received = RequestHelper.getString(receivePacket.getData(), len);  
-		System.out.println(received + "\n");
-		
-		// Parse the packet
-		//String pattern = "^[a-zA-Z0-9~@#$%^&*:;<>.,/}{+-]*$";
-		
+		// print log
+  		System.out.println("Server: receiving a packet...");
+  	    System.out.println("From host: " + receivePacket.getAddress());
+  	    System.out.println("Host port: " + receivePacket.getPort());
+  	    String reqString = RequestHelper.getString(receivePacket.getData(), receivePacket.getLength());
+  	    byte reqBytes[] =  receivePacket.getData();
+  	    System.out.print("String: '" + reqString + "'\n");
+  	    System.out.print("Bytes:  '" + reqBytes  + "'\n");	    
+  	    System.out.println("Server: packet received.\n");
 		
 		return data;
 	}
 	
 	public void send(byte data[], int destPort) {
-		try {
-			sendPacket = new DatagramPacket(data, receivePacket.getLength(),
-	                           receivePacket.getAddress(), destPort);
-	
-			System.out.println( "Server: Sending packet:");
-			System.out.println("To host: " + sendPacket.getAddress());
-			System.out.println("Destination host port: " + sendPacket.getPort());
-			int len = sendPacket.getLength();
-			System.out.println("Length: " + len);
-			System.out.print("Containing: ");
-			System.out.println(RequestHelper.getString(sendPacket.getData(), len) + "\n");
-			// or (as we should be sending back the same thing)
-			// System.out.println(received); 
+		sendPacket = new DatagramPacket(data, receivePacket.getLength(),
+                           receivePacket.getAddress(), destPort);
+
+		// print log
+		System.out.println("Server: sending a packet...");
+	    System.out.println("To host: " + sendPacket.getAddress());
+	    System.out.println("Destination host port: " + sendPacket.getPort());
+	    String reqString = RequestHelper.getString(sendPacket.getData(), sendPacket.getLength());
+	    byte reqBytes[] =  sendPacket.getData();
+	    System.out.print("String: '" + reqString + "'\n");
+	    System.out.print("Bytes:  '" + reqBytes  + "'\n");
 	    
+	    try {
 			// Send the datagram packet to the client via the send socket. 
 			sendSocket = new DatagramSocket();
 			sendSocket.send(sendPacket);
@@ -98,6 +90,6 @@ public class Server {
 			System.exit(1);
 		}
 
-		System.out.println("Server: packet sent");
+		System.out.println("Server: packet sent.\n");
 	}
 }
