@@ -22,7 +22,7 @@ public class Client {
 	}
 	
 	public void run() {
-		//read("testRead1.txt");
+		read("testRead1.txt");
 		write("testWrite1.txt");
 		
 		/*
@@ -69,7 +69,7 @@ public class Client {
  	    System.out.println("From host: " + receivePacket.getAddress());
  	    System.out.println("Host port: " + receivePacket.getPort());
  	    String reqString = RequestHelper.getString(receivePacket.getData(), receivePacket.getLength());
- 	    byte reqBytes[] =  receivePacket.getData();
+ 	    String reqBytes  = new String(receivePacket.getData(), 0, receivePacket.getLength());
  	    System.out.print("String: '" + reqString + "'\n");
  	    System.out.print("Bytes:  '" + reqBytes  + "'\n");	    
  	    System.out.println("Client: packet received.\n");
@@ -90,7 +90,7 @@ public class Client {
 	    System.out.println("To host: " + sendPacket.getAddress());
 	    System.out.println("Destination host port: " + sendPacket.getPort());
 	    String reqString = RequestHelper.getString(sendPacket.getData(), sendPacket.getLength());
-	    byte reqBytes[] =  sendPacket.getData();
+	    String reqBytes  = new String(sendPacket.getData(), 0, sendPacket.getLength());
 	    System.out.print("String: '" + reqString + "'\n");
 	    System.out.print("Bytes:  '" + reqBytes  + "'\n");
 	    

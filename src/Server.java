@@ -4,7 +4,7 @@ import java.io.*;
 public class Server {
 
 	private DatagramPacket sendPacket, receivePacket;
-	private DatagramSocket sendSocket, receiveSocket;
+	private DatagramSocket receiveSocket;
 	private static int thisPort = 69;
 	private static int sendPort = 68;
 	private boolean running;
@@ -61,7 +61,7 @@ public class Server {
   	    String reqString = RequestHelper.getString(receivePacket.getData(), receivePacket.getLength());
   	    byte reqBytes[] =  receivePacket.getData();
   	    System.out.print("String: '" + reqString + "'\n");
-  	    System.out.print("Bytes:  '" + reqBytes  + "'\n");	    
+  	    System.out.print("Bytes:  '" + reqBytes.toString()  + "'\n");	    
   	    System.out.println("Server: packet received.\n");
 		
 		return data;
@@ -78,13 +78,15 @@ public class Server {
 	    String reqString = RequestHelper.getString(sendPacket.getData(), sendPacket.getLength());
 	    byte reqBytes[] =  sendPacket.getData();
 	    System.out.print("String: '" + reqString + "'\n");
-	    System.out.print("Bytes:  '" + reqBytes  + "'\n");
+	    System.out.print("Bytes:  '" + reqBytes.toString()  + "'\n");
 	    
 	    try {
 			// Send the datagram packet to the client via the send socket. 
-			sendSocket = new DatagramSocket();
+			DatagramSocket sendSocket = new DatagramSocket();
 			sendSocket.send(sendPacket);
 			sendSocket.close();
+		} catch (SocketException e) {
+			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(1);
