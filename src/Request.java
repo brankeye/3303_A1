@@ -27,7 +27,7 @@ public class Request {
 	public String getString() {
 		Format format = getFormat();
 		
-		if(format == Format.RRQ || format == Format.WRQ) {
+		if(format == Format.RRQ || format == Format.WRQ || format == Format.BADFORMAT) {
 			// StringBuffer is thread safe! WOOHOO
 			StringBuffer buffer = new StringBuffer();
 			

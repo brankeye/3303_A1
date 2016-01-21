@@ -5,7 +5,8 @@ public class IntermediateHost {
 	
 	private DatagramSocket receiveSocket, duplexSocket;
 	public static int thisPort = 68;
-	public static int serverPort = 69;
+	public static int  serverPort = 69;
+	public InetAddress serverAddress;
 	private boolean running;
 	
 	IntermediateHost() {
@@ -17,6 +18,12 @@ public class IntermediateHost {
 	    	System.exit(1);
 	    }
 		running = true;
+		
+		try {
+			serverAddress = InetAddress.getLocalHost();
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public static void main(String[] args) {
@@ -32,20 +39,16 @@ public class IntermediateHost {
 	
 	// handle comms from client to server
 	public void relay() {
-		DatagramPacket clientPacket = receive();
-		try {
-		send(new DatagramPacket(clientPacket.getData(), clientPacket.getLength(), 
-								InetAddress.getLocalHost(), serverPort));
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-		DatagramPacket serverPacket = receive();
-		send(new DatagramPacket(serverPacket.getData(), serverPacket.getLength(),
-								clientPacket.getAddress(), clientPacket.getPort()));
+		DatagramPacket clientPacket = receiveClient();
+		sendServer(new DatagramPacket(clientPacket.getData(), clientPacket.getLength(), 
+								serverAddress, serverPort));
+		
+		DatagramPacket serverPacket = receiveServer();
+		sendClient(new DatagramPacket(serverPacket.getData(), serverPacket.getLength(),
+									  clientPacket.getAddress(), clientPacket.getPort()));
 	}
 	
-	public DatagramPacket receive() {
+	public DatagramPacket receiveClient() {
 		byte data[] = new byte[100];
 		DatagramPacket receivePacket = new DatagramPacket(data, data.length);
 		System.out.println("IHost: waiting for a packet...\n");
@@ -58,27 +61,58 @@ public class IntermediateHost {
 			e.printStackTrace();
 			System.exit(1);
 		}
-  	    
-  	    // print log
-		Request req = new Request(receivePacket.getData(), receivePacket.getLength());
- 		System.out.println("IHost: receiving a packet...");
- 	    System.out.println("From host: " + receivePacket.getAddress());
- 	    System.out.println("Host port: " + receivePacket.getPort());
- 	    String reqString = req.getString();
-	    byte reqBytes[]  = req.getByteArray();
-	    System.out.print("String: '" + reqString + "'\n");
-	    System.out.print("Bytes:  '");
-	    int i = 0;
-	    while(i < req.getLength()) {
-	    	System.out.print(reqBytes[i++]);
-	    }
-	    System.out.print("'\n");    
- 	    System.out.println("IHost: packet received.\n");
+  	    readReceivePacket(receivePacket);
 	    
 	    return receivePacket;
 	}
 	
-	public void send(DatagramPacket sendPacket) {
+	public DatagramPacket receiveServer() {
+		byte data[] = new byte[100];
+		DatagramPacket receivePacket = new DatagramPacket(data, data.length);
+		System.out.println("IHost: waiting for a packet...\n");
+		
+		try {
+			duplexSocket.receive(receivePacket);
+		} catch(IOException e) {
+			System.out.print("IO Exception: likely:");
+	        System.out.println("Receive Socket Timed Out.\n" + e);
+			e.printStackTrace();
+			System.exit(1);
+		}
+  	    readReceivePacket(receivePacket);
+	    
+	    return receivePacket;
+	}
+	
+	public void sendClient(DatagramPacket sendPacket) {
+		readSendPacket(sendPacket);
+	    
+	    // Send the datagram packet to the server via the send/receive socket. 
+	    try {
+	    	DatagramSocket sendSocket = new DatagramSocket();
+			sendSocket.send(sendPacket);
+			sendSocket.close();
+	    } catch (IOException e) {
+	       e.printStackTrace();
+	       System.exit(1);
+	    }
+	    System.out.println("IHost: packet sent.\n");
+	}
+	
+	public void sendServer(DatagramPacket sendPacket) {
+		readSendPacket(sendPacket);
+	    
+	    // Send the datagram packet to the server via the send/receive socket. 
+	    try {
+	       duplexSocket.send(sendPacket);
+	    } catch (IOException e) {
+	       e.printStackTrace();
+	       System.exit(1);
+	    }
+	    System.out.println("IHost: packet sent.\n");
+	}
+	
+	public void readSendPacket(DatagramPacket sendPacket) {
 		// print log
 		System.out.println("IHost: sending a packet...");
 	    System.out.println("To host: " + sendPacket.getAddress());
@@ -93,14 +127,23 @@ public class IntermediateHost {
 	    	System.out.print(reqBytes[i++]);
 	    }
 	    System.out.print("'\n");
-	    
-	    // Send the datagram packet to the server via the send/receive socket. 
-	    try {
-	       duplexSocket.send(sendPacket);
-	    } catch (IOException e) {
-	       e.printStackTrace();
-	       System.exit(1);
+	}
+	
+	public void readReceivePacket(DatagramPacket receivePacket) {
+		// print log
+		Request req = new Request(receivePacket.getData(), receivePacket.getLength());
+ 		System.out.println("IHost: receiving a packet...");
+ 	    System.out.println("From host: " + receivePacket.getAddress());
+ 	    System.out.println("Host port: " + receivePacket.getPort());
+ 	    String reqString = req.getString();
+	    byte reqBytes[]  = req.getByteArray();
+	    System.out.print("String: '" + reqString + "'\n");
+	    System.out.print("Bytes:  '");
+	    int i = 0;
+	    while(i < req.getLength()) {
+	    	System.out.print(reqBytes[i++]);
 	    }
-	    System.out.println("IHost: packet sent.\n");
+	    System.out.print("'\n");    
+ 	    System.out.println("IHost: packet received.\n");
 	}
 }

@@ -49,22 +49,7 @@ public class Server {
 			System.exit(1);
 		}
 
-		// print log
-		Request req = new Request(receivePacket.getData(), receivePacket.getLength());
- 		System.out.println("Server: receiving a packet...");
- 	    System.out.println("From host: " + receivePacket.getAddress());
- 	    System.out.println("Host port: " + receivePacket.getPort());
- 	    String reqString = req.getString();
-	    byte reqBytes[]  = req.getByteArray();
-	    // bytes here
-	    System.out.print("String: '" + reqString + "'\n");
-	    System.out.print("Bytes:  '");
-	    int i = 0;
-	    while(i < req.getLength()) {
-	    	System.out.print(reqBytes[i++]);
-	    }
-	    System.out.print("'\n");    
- 	    System.out.println("Server: packet received.\n");
+		readReceivePacket(receivePacket);
 		
 		return receivePacket;
 	}
@@ -86,22 +71,9 @@ public class Server {
   	    }
   	    
 		DatagramPacket sendPacket = new DatagramPacket(serverMsg, serverMsg.length,
-                           receivedPacket.getAddress(), hostPort);
+                           receivedPacket.getAddress(), receivedPacket.getPort());
 
-		// print log
-		System.out.println("Server: sending a packet...");
-	    System.out.println("To host: " + sendPacket.getAddress());
-	    System.out.println("Destination host port: " + sendPacket.getPort());
-	    Request req = new Request(sendPacket.getData(), sendPacket.getLength());
-	    String reqString = req.getString();
- 	    byte reqBytes[]  = req.getByteArray();
- 	    System.out.print("String: '" + reqString + "'\n");
-	    System.out.print("Bytes:  '");
-	    int i = 0;
-	    while(i < reqBytes.length) {
-	    	System.out.print(reqBytes[i++]);
-	    }
-	    System.out.print("'\n");
+		readSendPacket(sendPacket);
 	    
 	    try {
 			// Send the datagram packet to the client via the send socket. 
@@ -116,5 +88,40 @@ public class Server {
 		}
 
 		System.out.println("Server: packet sent.\n");
+	}
+	
+	public void readSendPacket(DatagramPacket sendPacket) {
+		// print log
+		System.out.println("Server: sending a packet...");
+	    System.out.println("To host: " + sendPacket.getAddress());
+	    System.out.println("Destination host port: " + sendPacket.getPort());
+	    Request req = new Request(sendPacket.getData(), sendPacket.getLength());
+	    String reqString = req.getString();
+ 	    byte reqBytes[]  = req.getByteArray();
+ 	    System.out.print("String: '" + reqString + "'\n");
+	    System.out.print("Bytes:  '");
+	    int i = 0;
+	    while(i < req.getLength()) {
+	    	System.out.print(reqBytes[i++]);
+	    }
+	    System.out.print("'\n");
+	}
+	
+	public void readReceivePacket(DatagramPacket receivePacket) {
+		// print log
+		Request req = new Request(receivePacket.getData(), receivePacket.getLength());
+ 		System.out.println("Server: receiving a packet...");
+ 	    System.out.println("From host: " + receivePacket.getAddress());
+ 	    System.out.println("Host port: " + receivePacket.getPort());
+ 	    String reqString = req.getString();
+	    byte reqBytes[]  = req.getByteArray();
+	    System.out.print("String: '" + reqString + "'\n");
+	    System.out.print("Bytes:  '");
+	    int i = 0;
+	    while(i < req.getLength()) {
+	    	System.out.print(reqBytes[i++]);
+	    }
+	    System.out.print("'\n");    
+ 	    System.out.println("Server: packet received.\n");
 	}
 }
