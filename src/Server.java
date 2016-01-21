@@ -29,12 +29,12 @@ public class Server {
 		}
 	}
 	
-	public void receiveAndEcho() {
+	private void receiveAndEcho() {
 		DatagramPacket receivedPacket = receive();
 		reply(receivedPacket);
 	}
 	
-	public DatagramPacket receive() {
+	private DatagramPacket receive() {
 		byte data[] = new byte[100];
 		DatagramPacket receivePacket = new DatagramPacket(data, data.length);
 		System.out.println("Server: waiting for a packet...\n");
@@ -54,7 +54,7 @@ public class Server {
 		return receivePacket;
 	}
 	
-	public void reply(DatagramPacket receivedPacket) {
+	private void reply(DatagramPacket receivedPacket) {
 		// verify the packet
   	    byte serverMsg[] = {};
   	    try {
@@ -90,7 +90,7 @@ public class Server {
 		System.out.println("Server: packet sent.\n");
 	}
 	
-	public void readSendPacket(DatagramPacket sendPacket) {
+	private void readSendPacket(DatagramPacket sendPacket) {
 		// print log
 		System.out.println("Server: sending a packet...");
 	    System.out.println("To host: " + sendPacket.getAddress());
@@ -107,7 +107,7 @@ public class Server {
 	    System.out.print("'\n");
 	}
 	
-	public void readReceivePacket(DatagramPacket receivePacket) {
+	private void readReceivePacket(DatagramPacket receivePacket) {
 		// print log
 		Request req = new Request(receivePacket.getData(), receivePacket.getLength());
  		System.out.println("Server: receiving a packet...");

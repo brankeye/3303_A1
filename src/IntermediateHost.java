@@ -38,17 +38,17 @@ public class IntermediateHost {
 	}
 	
 	// handle comms from client to server
-	public void relay() {
+	private void relay() {
 		DatagramPacket clientPacket = receiveClient();
 		sendServer(new DatagramPacket(clientPacket.getData(), clientPacket.getLength(), 
-								serverAddress, serverPort));
+									  serverAddress, serverPort));
 		
 		DatagramPacket serverPacket = receiveServer();
 		sendClient(new DatagramPacket(serverPacket.getData(), serverPacket.getLength(),
 									  clientPacket.getAddress(), clientPacket.getPort()));
 	}
 	
-	public DatagramPacket receiveClient() {
+	private DatagramPacket receiveClient() {
 		byte data[] = new byte[100];
 		DatagramPacket receivePacket = new DatagramPacket(data, data.length);
 		System.out.println("IHost: waiting for a packet...\n");
@@ -66,7 +66,7 @@ public class IntermediateHost {
 	    return receivePacket;
 	}
 	
-	public DatagramPacket receiveServer() {
+	private DatagramPacket receiveServer() {
 		byte data[] = new byte[100];
 		DatagramPacket receivePacket = new DatagramPacket(data, data.length);
 		System.out.println("IHost: waiting for a packet...\n");
@@ -84,7 +84,7 @@ public class IntermediateHost {
 	    return receivePacket;
 	}
 	
-	public void sendClient(DatagramPacket sendPacket) {
+	private void sendClient(DatagramPacket sendPacket) {
 		readSendPacket(sendPacket);
 	    
 	    // Send the datagram packet to the server via the send/receive socket. 
@@ -99,7 +99,7 @@ public class IntermediateHost {
 	    System.out.println("IHost: packet sent.\n");
 	}
 	
-	public void sendServer(DatagramPacket sendPacket) {
+	private void sendServer(DatagramPacket sendPacket) {
 		readSendPacket(sendPacket);
 	    
 	    // Send the datagram packet to the server via the send/receive socket. 
@@ -112,7 +112,7 @@ public class IntermediateHost {
 	    System.out.println("IHost: packet sent.\n");
 	}
 	
-	public void readSendPacket(DatagramPacket sendPacket) {
+	private void readSendPacket(DatagramPacket sendPacket) {
 		// print log
 		System.out.println("IHost: sending a packet...");
 	    System.out.println("To host: " + sendPacket.getAddress());
@@ -129,7 +129,7 @@ public class IntermediateHost {
 	    System.out.print("'\n");
 	}
 	
-	public void readReceivePacket(DatagramPacket receivePacket) {
+	private void readReceivePacket(DatagramPacket receivePacket) {
 		// print log
 		Request req = new Request(receivePacket.getData(), receivePacket.getLength());
  		System.out.println("IHost: receiving a packet...");

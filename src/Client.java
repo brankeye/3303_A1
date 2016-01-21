@@ -40,25 +40,25 @@ public class Client {
 		invalidRequest();
 	}
 	
-	public void read(String filename) {
+	private void read(String filename) {
 		// create a write request to send
 		sendNewPacket(Request.Format.RRQ, filename);
 		receiveNewPacket();
 	}
 	
-	public void write(String filename) {
+	private void write(String filename) {
 		// create a write request to send
 		sendNewPacket(Request.Format.WRQ, filename);
 		receiveNewPacket();
 	}
 	
-	public void invalidRequest() {
+	private void invalidRequest() {
 		// send bad request with empty filename
 		sendNewPacket(Request.Format.BADFORMAT, "");
 		receiveNewPacket();
 	}
 	
-	public void receiveNewPacket() {
+	private void receiveNewPacket() {
 		byte data[] = new byte[100];
 		DatagramPacket receivePacket = new DatagramPacket(data, data.length);
 		
@@ -72,7 +72,7 @@ public class Client {
 		readReceivePacket(receivePacket);
 	}
 	
-	public void sendNewPacket(Request.Format format, String filename) {
+	private void sendNewPacket(Request.Format format, String filename) {
 		Request req = new Request(format, filename);
 		byte msg[] = req.getByteArray();
 		DatagramPacket sendPacket = new DatagramPacket(msg, msg.length, 
@@ -90,7 +90,7 @@ public class Client {
 	    System.out.println("Client: packet sent.\n");
 	}
 	
-	public void readSendPacket(DatagramPacket sendPacket) {
+	private void readSendPacket(DatagramPacket sendPacket) {
 		// print log
 		System.out.println("Client: sending a packet...");
 	    System.out.println("To host: " + sendPacket.getAddress());
@@ -107,7 +107,7 @@ public class Client {
 	    System.out.print("'\n");
 	}
 	
-	public void readReceivePacket(DatagramPacket receivePacket) {
+	private void readReceivePacket(DatagramPacket receivePacket) {
 		// print log
 		Request req = new Request(receivePacket.getData(), receivePacket.getLength());
  		System.out.println("Client: receiving a packet...");
