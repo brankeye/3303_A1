@@ -3,7 +3,7 @@ import java.io.*;
 
 public class Client {
 	
-	private DatagramSocket duplexSocket;
+	private DatagramSocket duplexSocket; // socket for sending and receiving
 	private static int  sendPort = 68;
 	private InetAddress serverAddress;
 	
@@ -40,24 +40,28 @@ public class Client {
 		invalidRequest();
 	}
 	
+	// send a read request with the given filename to the server
 	private void read(String filename) {
 		// create a write request to send
 		sendNewPacket(Request.Format.RRQ, filename);
 		receiveNewPacket();
 	}
 	
+	// send a write request with the given filename to the server
 	private void write(String filename) {
 		// create a write request to send
 		sendNewPacket(Request.Format.WRQ, filename);
 		receiveNewPacket();
 	}
 	
+	// send an invalid request to the server
 	private void invalidRequest() {
 		// send bad request with empty filename
 		sendNewPacket(Request.Format.BADFORMAT, "");
 		receiveNewPacket();
 	}
 	
+	// this handles the reception of incoming packets
 	private void receiveNewPacket() {
 		byte data[] = new byte[100];
 		DatagramPacket receivePacket = new DatagramPacket(data, data.length);
@@ -72,6 +76,7 @@ public class Client {
 		readReceivePacket(receivePacket);
 	}
 	
+	// sends a new packet with the given format (RRQ/WRQ/etc) and filename 
 	private void sendNewPacket(Request.Format format, String filename) {
 		Request req = new Request(format, filename);
 		byte msg[] = req.getByteArray();
@@ -90,6 +95,7 @@ public class Client {
 	    System.out.println("Client: packet sent.\n");
 	}
 	
+	// reads the contents of a send packet
 	private void readSendPacket(DatagramPacket sendPacket) {
 		// print log
 		System.out.println("Client: sending a packet...");
@@ -107,6 +113,7 @@ public class Client {
 	    System.out.print("'\n");
 	}
 	
+	// reads the contents of a receive packet
 	private void readReceivePacket(DatagramPacket receivePacket) {
 		// print log
 		Request req = new Request(receivePacket.getData(), receivePacket.getLength());

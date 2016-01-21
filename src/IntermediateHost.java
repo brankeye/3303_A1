@@ -48,6 +48,7 @@ public class IntermediateHost {
 									  clientPacket.getAddress(), clientPacket.getPort()));
 	}
 	
+	// this handles the reception of incoming packets from Client
 	private DatagramPacket receiveClient() {
 		byte data[] = new byte[100];
 		DatagramPacket receivePacket = new DatagramPacket(data, data.length);
@@ -66,6 +67,7 @@ public class IntermediateHost {
 	    return receivePacket;
 	}
 	
+	// this handles the reception of incoming packets from Server
 	private DatagramPacket receiveServer() {
 		byte data[] = new byte[100];
 		DatagramPacket receivePacket = new DatagramPacket(data, data.length);
@@ -84,6 +86,7 @@ public class IntermediateHost {
 	    return receivePacket;
 	}
 	
+	// sends a new packet with the given packet to Client
 	private void sendClient(DatagramPacket sendPacket) {
 		readSendPacket(sendPacket);
 	    
@@ -99,6 +102,7 @@ public class IntermediateHost {
 	    System.out.println("IHost: packet sent.\n");
 	}
 	
+	// sends a new packet with the given packet to Server
 	private void sendServer(DatagramPacket sendPacket) {
 		readSendPacket(sendPacket);
 	    

@@ -23,10 +23,11 @@ public class Request {
 		length = length_t;
 	}
 	
-	// get a string form of the request
+	// prints the byte array differently based on its format (RRQ/WRQ/DATA/ACK/etc)
 	public String getString() {
 		Format format = getFormat();
 		
+		// if the format of the byte array is RRQ/WRQ
 		if(format == Format.RRQ || format == Format.WRQ || format == Format.BADFORMAT) {
 			// StringBuffer is thread safe! WOOHOO
 			StringBuffer buffer = new StringBuffer();
@@ -46,6 +47,7 @@ public class Request {
 			return buffer.toString();
 		}
 		
+		// if the format of the byte array is DATA/ACK
 		if(format == Format.DATA || format == Format.ACK) {
 			StringBuffer buffer = new StringBuffer();
 			int i = 0;
@@ -58,7 +60,7 @@ public class Request {
 		return format.toString(); // error return
 	}
 	
-	// returns null in the case of an invalid request
+	// creates a byte array with the given parameters
 	private byte[] makeByteArray(Format format, String filename, Mode mode) {
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		try {
@@ -80,6 +82,9 @@ public class Request {
 		// get format
 		if(bytes[0] != 0) { return Format.BADFORMAT; }
 		
+		// loops through all Format values and compares
+		// them on the second index (bytes[1]) where
+		// the format indicator byte is found
 		for(int i = 0; i < Format.values().length; ++i) {
 			if(bytes[1] == i + 1) { return Format.values()[i]; }
 		}
@@ -88,6 +93,10 @@ public class Request {
 	
 	public String getFilename() {
 		StringBuffer buffer = new StringBuffer();
+		
+		// starts after the format indexes of the byte array
+		// starts appending the chars of the filename until the
+		// first 0 byte delimiter
 		for(int i = 2; i < bytes.length; ++i) {
 			if(bytes[i] == 0) { return buffer.toString(); }
 			else { buffer.append((char)bytes[i]); };
@@ -99,6 +108,11 @@ public class Request {
 		if(bytes[bytes.length - 1] != 0) { return Mode.BADMODE; }
 		boolean modeIndex = false;
 		StringBuffer buffer = new StringBuffer();
+		
+		// starts after the format indexes of the byte array
+		// loops until first 0 byte delimiter after filename
+		// then starts appending the chars of the mode until the second
+		// 0 byte delimiter appears denoting end of the byte array
 		for(int i = 2; i < bytes.length; ++i) {
 			if(!modeIndex && bytes[i] == 0) { modeIndex = true; }
 			else if(modeIndex && bytes[i] != 0) { buffer.append((char)bytes[i]); }
@@ -112,6 +126,7 @@ public class Request {
 		return Mode.BADMODE;
 	}
 	
+	// probably overdid it here...
 	public boolean isValid() {
 		// verify format
 		if(bytes[0] != 0) { return false; }

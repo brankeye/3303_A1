@@ -33,6 +33,7 @@ public class Server {
 		reply(receivedPacket);
 	}
 	
+	// waits to receive packets
 	private DatagramPacket receive() {
 		byte data[] = new byte[100];
 		DatagramPacket receivePacket = new DatagramPacket(data, data.length);
@@ -53,6 +54,7 @@ public class Server {
 		return receivePacket;
 	}
 	
+	// sends a response to the Client based upon the contents of the receive packet
 	private void reply(DatagramPacket receivedPacket) {
 		// verify the packet
   	    byte serverMsg[] = {};
