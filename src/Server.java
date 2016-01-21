@@ -5,7 +5,6 @@ public class Server {
 
 	private DatagramSocket receiveSocket;
 	private static int thisPort = 69;
-	public static int hostPort = 68;
 	private boolean running;
 	
 	Server() {

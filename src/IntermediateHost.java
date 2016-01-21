@@ -4,14 +4,14 @@ import java.io.*;
 public class IntermediateHost {
 	
 	private DatagramSocket receiveSocket, duplexSocket;
-	public static int thisPort = 68;
-	public static int  serverPort = 69;
-	public InetAddress serverAddress;
+	private static int iHostPort = 68;
+	private static int  serverPort = 69;
+	private InetAddress serverAddress;
 	private boolean running;
 	
 	IntermediateHost() {
 		try {
-			receiveSocket = new DatagramSocket(thisPort);
+			receiveSocket = new DatagramSocket(iHostPort);
 			duplexSocket = new DatagramSocket();
 	    } catch (SocketException se) {   // Can't create the socket.
 	    	se.printStackTrace();
